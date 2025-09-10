@@ -1,30 +1,26 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from supabase import create_client
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env locally
 load_dotenv()
 
-# Supabase credentials
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-# Debug (remove in production)
 print("SUPABASE_URL:", SUPABASE_URL)
 print("SUPABASE_KEY:", SUPABASE_KEY[:10] if SUPABASE_KEY else None)
 
-# Create Supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = Flask(__name__)
+CORS(app)  # <-- allow requests from your frontend
 
-# --------- Health check / root ---------
 @app.route("/")
 def index():
     return "Backend is running 🚀", 200
 
-# --------- API Routes ---------
 @app.route("/events", methods=["GET"])
 def get_events():
     response = supabase.table("events").select("*").execute()
@@ -51,6 +47,5 @@ def get_registrations(event_id):
     response = supabase.table("registrations").select("*").eq("event_id", event_id).execute()
     return jsonify(response.data), 200
 
-# Run app for Render
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
