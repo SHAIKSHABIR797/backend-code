@@ -19,6 +19,11 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = Flask(__name__)
 
+# --------- Health check / root ---------
+@app.route("/")
+def index():
+    return "Backend is running 🚀", 200
+
 # --------- API Routes ---------
 @app.route("/events", methods=["GET"])
 def get_events():
